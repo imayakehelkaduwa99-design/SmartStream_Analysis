@@ -1,0 +1,8 @@
+-- Top 10 most popular products (by quantity sold)
+SELECT
+  *
+FROM
+  `retail-analytics-478402.retail_project2.product_performance_2024`
+ORDER BY
+  total_units_sold DESC
+LIMIT 10;
