@@ -1,0 +1,20 @@
+ -- Q1 – product-level KPIs for 2024
+CREATE OR REPLACE TABLE
+  `retail-analytics-478402.retail_project2.product_performance_2024` AS
+SELECT
+  Product_SKU,
+  Product_Description,
+  Product_Category,
+  SUM(Quantity) AS total_units_sold,
+  COUNT(DISTINCT Transaction_ID) AS num_transactions,
+  -- Revenue excluding shipping, after discount
+  SUM(
+    Quantity * Avg_Price * (1 - COALESCE(Discount_pct, 0) / 100.0)
+  ) AS total_revenue,
+  AVG(Transaction_Rating) AS avg_transaction_rating
+FROM
+  `retail-analytics-478402.retail_project2.transaction_cleaned`
+WHERE
+  EXTRACT(YEAR FROM transaction_date) = 2024
+GROUP BY
+  Product_SKU, Product_Description, Product_Category;
