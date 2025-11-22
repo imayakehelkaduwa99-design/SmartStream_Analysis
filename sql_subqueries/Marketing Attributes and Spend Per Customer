@@ -1,0 +1,38 @@
+-- Helper table: bring together marketing attributes + spend per customer
+CREATE OR REPLACE TABLE
+  `retail-analytics-478402.retail_project2.customer_marketing_value` AS
+SELECT
+  c.customer_id,
+  c.Preferred_Channel,
+  c.Loyalty_Program_Status,
+  c.Marketing_Responsiveness,
+  c.Referral_Likelihood,
+  c.Chatbot_Usage_Count,
+  c.Email_Opened_Count,
+  c.Clicked_Ad_Campaigns,
+  c.Participated_in_Survey,
+  c.Tenure_Months,
+  COUNT(DISTINCT t.Transaction_ID) AS order_count,
+  SUM(
+    t.Quantity * t.Avg_Price * (1 - COALESCE(t.Discount_pct, 0) / 100.0)
+  ) AS total_revenue,
+  AVG(
+    t.Quantity * t.Avg_Price * (1 - COALESCE(t.Discount_pct, 0) / 100.0)
+  ) AS avg_order_value
+FROM
+  `retail-analytics-478402.retail_project2.customer_cleaned` c
+LEFT JOIN
+  `retail-analytics-478402.retail_project2.transaction_cleaned` t
+ON
+  c.customer_id = t.Customer_ID
+GROUP BY
+  c.customer_id,
+  c.Preferred_Channel,
+  c.Loyalty_Program_Status,
+  c.Marketing_Responsiveness,
+  c.Referral_Likelihood,
+  c.Chatbot_Usage_Count,
+  c.Email_Opened_Count,
+  c.Clicked_Ad_Campaigns,
+  c.Participated_in_Survey,
+  c.Tenure_Months;
