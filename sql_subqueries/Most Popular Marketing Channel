@@ -1,0 +1,13 @@
+-- Which channel brings the highest-spending customers?
+SELECT
+  Preferred_Channel,
+  COUNT(*) AS num_customers,
+  SUM(total_revenue) AS channel_revenue,
+  AVG(total_revenue) AS avg_revenue_per_customer,
+  AVG(order_count) AS avg_orders_per_customer
+FROM
+  `retail-analytics-478402.retail_project2.customer_marketing_value`
+GROUP BY
+  Preferred_Channel
+ORDER BY
+  avg_revenue_per_customer DESC;
