@@ -1,0 +1,44 @@
+-- Q3 – RFM quintiles and combined RFM code
+CREATE OR REPLACE TABLE
+  `retail-analytics-478402.retail_project2.customer_rfm_scored` AS
+WITH base AS (
+  SELECT
+    *
+  FROM
+    `retail-analytics-478402.retail_project2.customer_rfm_base`
+),
+scored AS (
+  SELECT
+    customer_id,
+    recency_days,
+    frequency,
+    monetary,
+
+    -- Recency: more recent (smaller days) should get higher score,
+    -- so we compute NTILE ascending then reverse it.
+    6 - NTILE(5) OVER (ORDER BY recency_days ASC) AS r_score,
+
+    -- Frequency: more orders = higher score
+    NTILE(5) OVER (ORDER BY frequency ASC) AS f_score,
+
+    -- Monetary: more spending = higher score
+    NTILE(5) OVER (ORDER BY monetary ASC) AS m_score
+  FROM
+    base
+)
+SELECT
+  customer_id,
+  recency_days,
+  frequency,
+  monetary,
+  r_score,
+  f_score,
+  m_score,
+  CONCAT(CAST(r_score AS STRING),
+         CAST(f_score AS STRING),
+         CAST(m_score AS STRING)) AS rfm_code
+FROM
+  scored
+ORDER BY
+  rfm_code DESC,
+  monetary DESC;
