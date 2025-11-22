@@ -1,0 +1,30 @@
+-- Q2 – calculate raw Recency, Frequency, Monetary per customer
+CREATE OR REPLACE TABLE
+  `retail-analytics-478402.retail_project2.customer_rfm_base` AS
+WITH customer_tx AS (
+  SELECT
+    customer_id,
+    MAX(transaction_date) AS last_purchase_date,
+    COUNT(DISTINCT Transaction_ID) AS frequency,
+    SUM(
+      Quantity * Avg_Price * (1 - COALESCE(Discount_pct, 0) / 100.0)
+    ) AS monetary
+  FROM
+    `retail-analytics-478402.retail_project2.transaction_cleaned`
+  GROUP BY
+    customer_id
+)
+SELECT
+  customer_id,
+  last_purchase_date,
+  -- recency in days: smaller = more recent
+  DATE_DIFF(
+    (SELECT MAX(transaction_date)
+     FROM `retail-analytics-478402.retail_project2.transaction_cleaned`),
+    last_purchase_date,
+    DAY
+  ) AS recency_days,
+  frequency,
+  monetary
+FROM
+  customer_tx;
